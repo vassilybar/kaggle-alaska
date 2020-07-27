@@ -1,6 +1,6 @@
-# ALASKA2 Image Steganalysis
+# Kaggle ALASKA2 Image Steganalysis
 
-- This is my code for [ALASKA2 Image Steganalysis](https://www.kaggle.com/c/alaska2-image-steganalysis) where our team ended up at [24th place](https://www.kaggle.com/c/alaska2-image-steganalysis/leaderboard) in the competition.
+- This is my code for [Kaggle ALASKA2 Image Steganalysis](https://www.kaggle.com/c/alaska2-image-steganalysis) where our team ended up at [24th place](https://www.kaggle.com/c/alaska2-image-steganalysis/leaderboard) in the competition.
 
 ## Solution Overview
 
