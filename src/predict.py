@@ -11,7 +11,7 @@ from dataset import get_test_dataset
 from utils import set_seed, set_cuda_device
 
 
-def predict(loader, model, device):
+def predict(loader, model, device, submission_path):
     model.eval()
     result = {'Id': [], 'Label': []}
     for image_names, images in tqdm(loader):
@@ -28,13 +28,13 @@ def predict(loader, model, device):
     result['Label'] = np.concatenate(result['Label']).mean(1)
     submission = pd.DataFrame(result)
     submission = submission.fillna(0.5)
-    submission.to_csv(config.submission_path, index=False)
+    submission.to_csv(submission_path, index=False)
 
 
 if __name__ == '__main__':
     set_seed(config.seed)
     set_cuda_device(config.gpu)
     model = torch.load(f'model/{config.workdir}/best_model.pth').to(config.device)
-    test_dataset = get_test_dataset()
+    test_dataset = get_test_dataset(config)
     test_loader = DataLoader(test_dataset, batch_size=config.batch_size, num_workers=config.num_workers, shuffle=False)
-    predict(test_loader, model, config.device)
+    predict(test_loader, model, config.device, config.submission_path)

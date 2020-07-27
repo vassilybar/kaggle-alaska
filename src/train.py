@@ -18,7 +18,7 @@ from model import get_model
 from utils import set_seed, set_cuda_device, write2log
 
 
-def train_epoch(loader, model, criterion, optimizer, device, scheduler=None):
+def train_epoch(loader, model, criterion, optimizer, device, scheduler=None, apex=False):
     model.train()
     sum_loss = 0.
     optimizer.zero_grad()
@@ -27,7 +27,7 @@ def train_epoch(loader, model, criterion, optimizer, device, scheduler=None):
         labels = torch.argmax(labels, dim=1)
         imgs, labels = imgs.to(device), labels.to(device).long()
         loss = criterion(model(imgs), labels)
-        if config.apex:
+        if apex:
             with amp.scale_loss(loss, optimizer) as scaled_loss:
                 scaled_loss.backward()
         else:
@@ -38,7 +38,6 @@ def train_epoch(loader, model, criterion, optimizer, device, scheduler=None):
         pbar.set_description(f'Loss: {sum_loss / (i + 1)}')
         if scheduler:
             scheduler.step()
-        break
     return sum_loss / len(loader)
 
 
@@ -55,7 +54,7 @@ def test_epoch(loader, model, device):
     return alaska_weighted_auc(targets, preds)
 
 
-def train(model, train_loader, valid_loader):
+def train(model, train_loader, valid_loader, config):
     if config.log_wandb:
         wandb.init(project=f'{config.workdir}')
     os.makedirs(f'model/{config.workdir}', exist_ok=True)
@@ -77,7 +76,7 @@ def train(model, train_loader, valid_loader):
 
     for epoch in range(config.n_epochs):
         start_time = time.time()
-        train_loss = train_epoch(train_loader, model, criterion, optimizer, config.device, scheduler)
+        train_loss = train_epoch(train_loader, model, criterion, optimizer, config.device, scheduler, config.apex)
         valid_score = test_epoch(valid_loader, model, config.device)
         elapsed_time = time.time() - start_time
 #         scheduler.step()
@@ -97,7 +96,7 @@ if __name__ == '__main__':
     set_seed(config.seed)
     set_cuda_device(config.gpu)
     model = get_model(config.model_name, config.n_classes)
-    train_dataset, valid_dataset = get_train_valid_datasets()
+    train_dataset, valid_dataset = get_train_valid_datasets(config)
     train_loader = DataLoader(train_dataset, batch_size=config.batch_size, num_workers=config.num_workers, shuffle=True)
     valid_loader = DataLoader(valid_dataset, batch_size=config.batch_size, num_workers=config.num_workers, shuffle=False)
-    train(model, train_loader, valid_loader)
+    train(model, train_loader, valid_loader, config)
