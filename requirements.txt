@@ -2,7 +2,7 @@ albumentations==0.4.6
 apex==0.1
 opencv-python==4.2.0.34
 torch==1.5.1
-numpy==1.19.0
+numpy==1.22.0
 pandas==1.0.5
 sklearn
 efficientnet-pytorch
